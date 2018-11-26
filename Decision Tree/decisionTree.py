@@ -1,4 +1,5 @@
 import nltk
+from sklearn.svm import SVC 
 
 filepath = 'sampledTrainQuestions.txt'
 trainQuestions = []
@@ -75,6 +76,7 @@ finalTags = []
 for it1 in range(0, len(X_test)):
 	finalTags.append([])
 
+Y_test_complete = []
 for tag in tags:
 	filepath = 'sampledTrainTags'+tag+'.txt'
 	Y_train = []
@@ -98,18 +100,22 @@ for tag in tags:
 			line = fp.readline()
 			cnt += 1
 
+	Y_test_complete.append(Y_test)
+
 	print(len(Y_train), len(X_train))
 	print("Learning " + tag + "...")
-	from sklearn.tree import DecisionTreeClassifier  
-	classifier = DecisionTreeClassifier()  
-	classifier.fit(X_train, Y_train)
+	# from sklearn.tree import DecisionTreeClassifier  
+	# classifier = DecisionTreeClassifier()  
+	# classifier.fit(X_train, Y_train)
+	svm = SVC(gamma='scale', random_state=0)
+	svm.fit(X_train, Y_train)
 	print("Learnt.")
 
 	print("Predicting...")
 	c=0
 	c2=0
-	res = classifier.predict(X_train)
-	res2 = classifier.predict(X_test)
+	res = svm.predict(X_train)
+	res2 = svm.predict(X_test)
 
 	for it1 in range(0, len(X_train)):
 		if res[it1]!=Y_train[it1]:
@@ -121,8 +127,24 @@ for tag in tags:
 		if res2[it1]==1:
 			finalTags[it1].append(tag)
 
+	
 	print(c,c2)
 
 print("Predicted Tags:-")
 for it1 in range(0, len(testQuestions)):
 	print(testQuestions[it1], finalTags[it1])
+
+print("Creating Confussion Matrix...")
+conf_mat = []
+for it1 in range(0, len(tags)):
+	row = [0]*len(tags)
+	for it2 in range(0, len(testQuestions)):
+		if Y_test_complete[it1][it2]==1:
+			for it3 in range(0, len(tags)):
+				if tags[it3] in finalTags[it2]:
+					row[it3]+=1
+	conf_mat.append(row)
+
+print("Created.")
+print("Here is the Confussion Matrix:-")
+print(conf_mat)
