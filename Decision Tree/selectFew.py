@@ -59,6 +59,13 @@ with open(filepath) as fp:
 print("Read Tags.")
 # print("These are the tags:")
 # print(tag_to_ind)
+print("Writing Tags in a file...")
+s = "sampledTags.txt"
+f = open(s, "w")
+for tag in tags:
+	# print(it1)
+	f.write(tag+",")
+print("Written Tags in a file.")
 
 
 print("Storing Tags...")
